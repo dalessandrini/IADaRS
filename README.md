@@ -1,2 +1,2 @@
 # IADaRS
-Repo del curso Introducción al análisis de datos con R y R Studio (CFE-IM)
+Repo del curso "Introducción al Análisis de Datos con R y RStudio" (CFE-IM)
