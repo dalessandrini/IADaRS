@@ -1,0 +1,38 @@
+---
+title: "MiReporte"
+author: "Nombre(s)"
+date: "`r format(Sys.Date(),format='%B %Y')`"
+output: pdf_document
+header-includes: 
+  - \usepackage{titling}
+  - \pretitle{\begin{center}
+    \includegraphics[width=2cm,height=2cm]{logo_IM.png}\LARGE\\}
+  - \posttitle{\end{center}}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
+geometry: left=1.5cm,right=1.5cm,top=2cm,bottom=2.5cm
+---
+
+## Resumen
+
+Mostraremos la _relación_ entre largo de sépalos () y ancho de pétalos,
+para el clásico conjunto de datos `iris`.
+
+
+```{r irisgraf, fig.cap="Grafico de iris"}
+library(ggplot2)
+ggplot(iris,aes(x=Sepal.Length,y=Petal.Width)) + geom_point()
+```
+
+## Que otras cosas se pueden hacer
+
+Escribir texto, `texto`, _texto_ y *texto* hasta que te sangren los dedos. Después de esto, agregar imágenes, figuras, gráficos y lo que se te pueda ocurrir, con adecuados subtítulos.
+
+Además, se puede agregar hipertexto utilizando este formato: <https://montevideo.gub.uy/>
+
+Y muchas, muchas cosas más...
+
+Por ejemplo citar una imagen, como podemos hacer con \ref{irisgraf}, que es la imagen que quedó acá arriba
+
+
+

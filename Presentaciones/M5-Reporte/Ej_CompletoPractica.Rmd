@@ -1,0 +1,330 @@
+---
+title: 'Reporte automático'
+subtitle: Repaso de todo lo dado
+author:
+- Unidad de Estadística
+- Servicio de Gestión Estratégica
+- Departamento de Desarrollo Sostenible e Inteligente
+# date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: "`r format(Sys.time(), '%d/%m/%Y')`"
+urlcolor: red
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: 2
+    number_sections: yes
+header-includes:
+- \usepackage{booktabs}
+- \usepackage[spanish]{babel}
+- \usepackage{caption}
+---
+
+
+\captionsetup[figure]{name=Gráfico}
+\captionsetup[table]{name=Tabla}
+
+
+\newpage
+
+\listoftables
+\listoffigures
+
+\newpage
+
+
+
+
+# Introducción 
+
+En este ejercicio vamos a repasar muchos de los temas vistos en el curso. La idea es que lo piensen e ir haciéndolo juntos a lo largo de la clase de forma de emular lo que será el trabajo final. 
+
+El objetivo es que construyan **un informe en formato pdf** que contenga la misma estructura de secciones y sub secciones que se defienen en este documento. Dentro de cada sección y sub sección se les pedirá que hagan determinadas cosas. No es necesario que dentro de las secciones copien los texto que aparecen, salvo en los casos que se pide explísitamente.
+
+
+# Características del entorno YAML + Latex
+
+Las caracterísiticas generales del informe que se definen dentro del entorno **YAML** al comienzo del informe. Recuerden que para configurar algunas cosas (por ejemplo el idioma) hay que usar algunas librerías de **latex**.
+
+Queremos que el informe cuente con:
+
+* Título: *Trabajo práctico global*
+* Sub título: *Repaso general*
+* Autor: *Nombre propio*
+* Fecha: usar codigo R para poner fecha del día con formato dia/mes/año
+* Índice: poner la tabla de contenidos con una profundidad de 2 (que aparezca en una hoja)
+* Sección y sub secciones numeradas
+* Que los hipervínculos aparezcan en rojo
+
+Agregados con latex fuera del YAML:
+
+* Poner Índices de tablas y figuras (que aparezca en una hoja)
+* Que el prefijo de las figuras sea **Gráfico** y el de las tablas **Cuadro**.
+
+
+# Caracterísiticas del texo
+
+En este apartado hay que reproducir lo que aparece en el siguiente párrafo usando código **markdown** (respetar, negrita, tipo de letra, links y notas al pie).
+
+
+**Esta parte del párrafo tiene que ser en negrita**, *luego esta parte en cursiva*. Ahora bien, ***pongamos esta parte de texto con negrita y cursiva***. En esta parte vamos agregar una nota al pie^[Escribir algún texto]. Por último vamos a gregar un hipervínculo a la url de la IM poniendo la url entera <https://montevideo.gub.uy/> y la misma url, pero que el link aparezca [aquí](https://montevideo.gub.uy/). 
+
+## Listas de ítems
+
+En esta parte tienen que reproducir estas lista de ítems.
+
+Lista sin orden:
+
+* Hola
+* Todo
+* Liso
+
+Lista con orden:
+
+1. A
+1. B
+1. C
+
+Lista anidada con orden (tabulador + espacio):
+
+1. A
+   1. a
+   1. b
+1. B
+1. C
+
+Lista anidada SIN orden (tabulador):
+
+* Hola
+  * Ana
+  * Luis
+* Todo
+* Liso
+
+
+# Configuración general de los chunks
+
+En esta sección vamos a configurar los chunks para que por defecto: 
+
+* NO se muestren los códigos en R (echo)
+* ni los mensajes (message)
+* ni los warnings. (warning)
+
+Recuerden que si para algún chunk en particular esta configuración se puede settear de forma individual en caso que se requiera.
+
+
+```{r setup, echo = F,include=T}
+knitr::opts_chunk$set(echo = F,message = F,warning = F,
+                      eval = T)
+```
+
+
+# Librerías y conflictos
+
+En esta sección vamos a cargar las librerías que vamos a utilizar en el reporte: **tidyverse**, **conflicted**, **knitr** y **kableExtra**, hay que cargarlas usando la función **library()**. En caso de que existan conflictos solucionarlos usando la función **conflict_prefer()**.    
+
+
+```{r}
+library(tidyverse)
+library(conflicted)
+library(knitr)
+library(kableExtra)
+```
+
+
+```{r, eval = T,warning=F,message=FALSE,echo = F,results='hide'}
+library(conflicted) # Cargamos la librería
+conflict_prefer(name = 'filter',winner = 'dplyr')
+conflict_prefer(name = 'select',winner = 'dplyr')
+```
+
+
+# Importar datos
+
+Impoortar los datos de la ECH **baseHog.csv** y **basePer.csv** que están dentro de la carpeta **Bases**. Cargar la base de hogares en el objeto **datH** y la base de personas en el objeto **datP**.
+
+```{r}
+dat = read.table('../Bases/baseHog.csv',sep = ';', 
+                 header = T, dec = ',',na.strings = c('NA','','---'))
+
+
+datP = read.table('../Bases/basePer.csv',sep = ';', 
+                 header = T, dec = ',',na.strings = c('NA','','---'))
+
+```
+
+
+## Chequeo que los datos en el objeto **datH** están bien impotados
+
+Usar alguna función para chequear que los datos están bien cargados pero solo para chequear, no queremos que nada de esto aparezca en el informe.
+
+
+**Reproducir el párrafo siguiente usando código R dentro del texto como se muestra a continuación:**
+
+La base de hogares tiene `r nrow(dat)` filas y `r ncol(dat)` columnas, mientras que la base de hogares tiene `r nrow(datP)` filas y `r ncol(datP)` columnas.
+
+
+
+```{r, eval = F}
+### Por ejemplo usaar estas dos, pero no es necesario imprimirlo en el informe ni al 
+## resultado ni al código
+dim(dat)
+str(dat)
+```
+
+
+# Vincular tablas (xx_join)
+
+En este aprtado queremos agregarle a la base de personas (datP) la información de si el hogar es pobre. Recuerden que por definición, una persona es pobre si vive en un hogar pobre. (Usar alguna función join)
+
+```{r}
+datP = datP %>% left_join(dat %>% select(correlativ,pobre), by = 'correlativ')
+```
+
+# Crear nuevas variables
+
+En este aprtado vamos a crear nuevas variable utilizando la función **mutate()**.
+
+## Base de hogares
+
+Al set de datos **datH** le vamos a agregar las siguientes variables:
+
+* **ypc_svl**: Ingreso del hogar sin valor locativo per cápita
+* **ind_VivInad**: Varible que indique si la vivienda es **Inadecuada** (Indadecuada = 3)
+* **ht11_rec**: Recodificar la variable valor locativo en 3 categorías (**Menos de 20000**, **Entre 20000 y 50000**,  **Entre 50000 y 80000** y **Más de 80000**). 
+
+```{r}
+dat = dat %>% 
+  ### Creamos las variables que se piden usando mutate()
+  mutate(ypc_svl = (ht11 - ht13)/ht19,
+         ind_VivInad = case_when(VivAdec %in% c(3) ~ 1,
+                                  TRUE ~ 0),
+         ht13_rec = cut(ht13,breaks = c(-Inf,19999.9,49999,79999,Inf),
+                        labels = c('Menos de 20000','Entre 20000 y 50000','Entre 50000 y 80000','Más de 80000'))) %>%  
+           ungroup()
+```
+
+
+## Base de personas
+
+Al set de datos **datP** le vamos a agregar una nueva variable:
+
+* **Educ_Rec3**: A la variable de total de años de educación formal (*TotEduc*) la vamos a recodificar en tres categorías con las siguientes categorías ("Menos de 9 años","Entre 9 y 12","Más de 12") 
+
+```{r}
+datP = datP %>% mutate(Educ_Rec3 = cut(TotEduc,breaks = c(-Inf,8.9,12,Inf),
+                                       labels = c("Menos de 9 años","Entre 9 y 12","Más de 12")))
+```
+
+
+# Resumen de datos
+
+## Base de hogares
+
+En esta parte vamos a tomar como insumo el objeto **datH** ya con las variables nuevas creadas en el punto anterior. 
+Vamos a contruir una tabla de resumen **por municipio** llamada **resH** con la siguiente información:
+
+* **TotCasos**: Total de casos.
+* **ht11_60mil_porc**: Porcentaje de hogares con ingreso mayor a 60000
+* **Nombrarla Igual**: Promedios de las variables **ht11** y **ypc_svl**.
+* **pobre_porc**: Porcentaje de hogres pobres.
+* **VivInad_porc**: Porcentaje de hogares en viviendas inadecuadas.
+
+
+```{r}
+resH = dat %>% 
+  group_by(municipio) %>% 
+  summarise(
+    TotCasos = n(),
+    ht11_60mil_porc = round(100*mean(ht11 > 60000,na.rm = T),1),
+    ht11 = round(mean(ht11,na.rm = T)),
+    ypc_svl = round(mean(ypc_svl,na.rm = T)),
+    pobre_porc = round(100*mean(pobre == 1,na.rm = T),1),
+    VivInad_porc = round(100*mean(ind_VivInad,na.rm = T),1)) %>% 
+  ungroup()
+```
+
+## Base de personas
+
+Con la base de personas **datP** vamos a contruir una tabla de resumen **por municipio** llamada **resP** con la siguiente información:
+
+* **pobre_porcP**: porcentaje de personas pobres.
+* **educ_prom_18_65**: años de educación promedio para las personas entre 18 y 65 años
+
+```{r}
+resP = datP %>% 
+  # Creamos variable que tiene el dato ppara la población objetivo
+  mutate(educAux18_65 = case_when(e27 >= 18 & e27 <= 65 ~ TotEduc,
+                                           TRUE ~ NA)) %>% 
+  ### Agrupamos por municipio
+  group_by(municipio) %>% 
+  ### Hacemos los resumenes pedidos
+  summarise(pobre_porcP = round(100*mean(pobre == 1,na.rm = T),1),
+            educ_prom_18_65 = round(mean(educAux18_65,na.rm = T),1)) %>% 
+  ## Desagrupamos
+  ungroup()
+            
+```
+
+
+# Tablas y gáficos
+
+## Tabla de resumen de hogares
+
+Vamos a usar las funciones  **kable** de la libraría **knitr** más las funcionalidades que aporta la libraría **kableExtra** para configurar los formatos de las tablas.
+
+En este [link](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf) pueden ver distintos formatos de tablas con los códigos en R.
+
+En esta parte tenemos que incluir en el informe el contenido del objeto **resH** en formato tabla en el informe. La idea es que quede cómo se muestra aquí.
+
+Para mostrar la tabla, renombramos las columnas con estos nombres ("Municipio","Casos","Yso > 60m","Yso Prom","Yso_SVL Prom","% hogares pobres","% Viv inadecuadas") utilizando la función **colnames()** para renombrar.
+
+```{r ,fig.pos = "!H"}
+
+aux = resH
+colnames(aux) = c("Municipio","Casos","Yso > 60m","Yso Prom","Yso_SVL Prom","% hogares pobres","% Viv inadecuadas")
+
+kable(aux, booktabs = T,caption = 'Resumen datos de hogares') %>% 
+  kable_styling(full_width = F,font_size = 8,
+                latex_options = c("striped","hold_position"),
+                position = "center") %>%
+  column_spec(1,bold = T) %>% 
+  row_spec(0,bold = T,color = 'blue')
+```
+
+
+Características de la tabla:
+
+* Encabezado: Letra azul y en negrita
+* La primer columna está en negrita
+* El color de las filas está alternado (se llama *striped*)
+* Tamaño de letra de la tabla 8
+* La posición de la tabla es centrada.  
+
+## Gráfico
+
+Vamos a hacer un gráfico de barras que sea el porcentaje de hogares pobres por municipio como se muestra en el reporte.
+
+```{r, fig.cap='\\% de hogares pobres por Municipio',out.width = "70%",fig.align='center'}
+
+ggplot(resH, aes(x = municipio,y = pobre_porc)) + 
+  geom_bar(stat = 'identity',fill = 'darkgreen',alpha = 0.6) + 
+  theme_minimal() + 
+  ylim(0,max(resH$pobre_porc) + 5) +
+  labs(y = '% Hogares pobres',
+       x = 'Municipios') +
+  theme(axis.title.x = element_text(size = 12,color = 'red'),
+        axis.title.y = element_text(size = 12,color = 'blue',face = 'bold'),
+        axis.text = element_text(size = 14)) + 
+  geom_text(aes(label = pobre_porc), vjust = 0, color = 'gray',size = 6)
+
+```
+
+Características del gráfico:
+
+* Color de releno de las barras es **darkgreen** (parámetro **fill**)
+* Transparencia de las barras 0.6 (parámetro **alpha**)
+* El tema usado es **theme_minimal()**
+* El tamaño de la letra de los nombres de los ejes es 12.
+* El título de los ejes x e y tienen tamaño 14 y tienen color **red** y **blue** respectivamente.
+* El título del eje de las x está en negrita.
+* El texto sobre las barras tiene color **gray** y tamaño 6.
