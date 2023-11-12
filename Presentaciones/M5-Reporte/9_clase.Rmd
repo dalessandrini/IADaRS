@@ -4,7 +4,7 @@ title: |
    ## `RMarkdown` y `knitr`
 author: "Leticia Debera, Darío Padula y Daniel Alessandrini"
 institute: "Intendencia de Montevideo"
-date: "2023/09/07" 
+date: "2023/12/07" 
 #(updated: `r Sys.Date()`)"
 output:
   # revealjs::revealjs_presentation:
@@ -41,7 +41,7 @@ library(knitr)
 
 - ### Introducción / conceptos básicos: aprendimos
  + Qué es `R`, interfaz gráfica `RStudio`
- + **RMarkdown: estructura básica**
+ <!-- + **RMarkdown: estructura básica** -->
  + Elementos: objetos, estructura, accesibilidad, operadores
  + Objetos: `vector`es, `data.frame`, `list`as,...
  
@@ -283,86 +283,86 @@ class: inverse, center, middle
 <img src="notaPie.png" alt="" style="width:100%;"; margin-left: 0px; margin-top: 20px;>
 
 
----
+<!-- --- -->
 
-## Markdown
+<!-- ## Markdown -->
 
-### Expresiones matemáticas
+<!-- ### Expresiones matemáticas -->
 
-Ecuaciones entre `$`: `$e^{i\pi}+1=0$` devuelve $e^{i\pi}+1=0$
+<!-- Ecuaciones entre `$`: `$e^{i\pi}+1=0$` devuelve $e^{i\pi}+1=0$ -->
 
-Ecuaciones en bloque entre `$$`: la expresión 
+<!-- Ecuaciones en bloque entre `$$`: la expresión  -->
 
-\$$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)\$$
-
-
-devuelve la desigualdad de Cauchy-Schwarz:
-$$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)$$
-
----
-
-## Markdown
-
-### Tablas
-
-.pull-left[
-
-> | Right | Left | Default | Center |
->
-|-------:|:------|-----------|:---------:|
->
-| 12 | 12 | 12 | 12 |
->
-| 123 | 123 | 123 | 123 |
->
-| 1 | 1 | 1 | 1 |
-]
-
-.pull-right[
-
-| Right | Left | Default | Center |
-|-------:|:------|-----------|:---------:|
-| 12 | 12 | 12 | 12 |
-| 123 | 123 | 123 | 123 |
-| 1 | 1 | 1 | 1 |
-
-]
-
----
-
-## Otras herramientas para introducir y mejorar texto
-
-### $\LaTeX$
-
-Podemos crear un \textbf{texto} con agregados en \LaTeX usando expresiones entre `$`:
-
-Podemos crear un $\textbf{texto}$ con agregados en $\LaTeX$ usando expresiones entre `$`
-
-### CSS
-
-Necesario agregar opción `css` al preámbulo YAML
+<!-- \$$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)\$$ -->
 
 
-.pull-left[
+<!-- devuelve la desigualdad de Cauchy-Schwarz: -->
+<!-- $$\left( \sum_{k=1}^n a_k b_k \right)^2 \leq \left( \sum_{k=1}^n a_k^2 \right) \left( \sum_{k=1}^n b_k^2 \right)$$ -->
 
-...  
-output: html_document  
-  css: "style.css"  
+<!-- --- -->
 
-]
+<!-- ## Markdown -->
+
+<!-- ### Tablas -->
+
+<!-- .pull-left[ -->
+
+<!-- > | Right | Left | Default | Center | -->
+<!-- > -->
+<!-- |-------:|:------|-----------|:---------:| -->
+<!-- > -->
+<!-- | 12 | 12 | 12 | 12 | -->
+<!-- > -->
+<!-- | 123 | 123 | 123 | 123 | -->
+<!-- > -->
+<!-- | 1 | 1 | 1 | 1 | -->
+<!-- ] -->
+
+<!-- .pull-right[ -->
+
+<!-- | Right | Left | Default | Center | -->
+<!-- |-------:|:------|-----------|:---------:| -->
+<!-- | 12 | 12 | 12 | 12 | -->
+<!-- | 123 | 123 | 123 | 123 | -->
+<!-- | 1 | 1 | 1 | 1 | -->
+
+<!-- ] -->
+
+<!-- --- -->
+
+<!-- ## Otras herramientas para introducir y mejorar texto -->
+
+<!-- ### $\LaTeX$ -->
+
+<!-- Podemos crear un \textbf{texto} con agregados en \LaTeX usando expresiones entre `$`: -->
+
+<!-- Podemos crear un $\textbf{texto}$ con agregados en $\LaTeX$ usando expresiones entre `$` -->
+
+<!-- ### CSS -->
+
+<!-- Necesario agregar opción `css` al preámbulo YAML -->
 
 
-.pull-right[
-A [green]{.my-color} word. 
+<!-- .pull-left[ -->
 
-devuelve
+<!-- ...   -->
+<!-- output: html_document   -->
+<!--   css: "style.css"   -->
 
-<img src="agreenword.png" alt="" style="width:40%;"; margin-left: 0px; margin-top: 20px;>
-
-]
+<!-- ] -->
 
 
----
+<!-- .pull-right[ -->
+<!-- A [green]{.my-color} word.  -->
+
+<!-- devuelve -->
+
+<!-- <img src="agreenword.png" alt="" style="width:40%;"; margin-left: 0px; margin-top: 20px;> -->
+
+<!-- ] -->
+
+
+<!-- --- -->
 
 class: inverse, center, middle
 
@@ -423,7 +423,7 @@ a %>%
 
 class: inverse, center, middle
 
-# RMarkdown avanzado
+# Tablas e imágenes
 
 ---
 
@@ -560,74 +560,79 @@ a %>%
 - Resto de parámetros (altura, ancho, alineación, etc.) se controlan desde el preámbulo del chunk
 
 
----
-
-## Referenciar documentos
-
---
-
-### Referencias internas
-
-  + Formas de citar un documento como referencia o fuente de otro
-  
-  + Permite unir documentos en mismo texto para facilitar su ubicación
-
-  + Importante: instalar paquete `bookdown` e indicar en preámbulo YAML convenientemente:
-
->    
-...   
-output:   
-   bookdown::pdf_document2    
-    
-
---
-  
-- ### Referencias cruzadas
-
-  + Sección
-  
-  + Tabla
-  
-  + Imagen
 
 
 ---
 
-## Referencias cruzadas para secciones
+<!-- ## Referenciar documentos -->
+
+<!-- -- -->
+
+<!-- ### Referencias internas -->
+
+<!--   + Formas de citar un documento como referencia o fuente de otro -->
+
+<!--   + Permite unir documentos en mismo texto para facilitar su ubicación -->
+
+<!--   + Importante: instalar paquete `bookdown` e indicar en preámbulo YAML convenientemente: -->
+
+<!-- >     -->
+<!-- ...    -->
+<!-- output:    -->
+<!--    bookdown::pdf_document2     -->
 
 
-Se referencia con `#` la sección de interés y se la llama en el documento utilizando `\@ref(seccion)`
+<!-- -- -->
 
-<img src="ref_seccion.png" alt="" style="width:100%;"; margin-left: 0px; margin-top: 20px;>
+<!-- - ### Referencias cruzadas -->
 
----
+<!--   + Sección -->
 
-## Referencias cruzadas para tablas
+<!--   + Tabla -->
 
-- Necesario darle nombre al chunk donde se encuentra la tabla
-
-- Debe hacerse entre enseguida de la primer `r`: `{r XXX, ...}`
+<!--   + Imagen -->
 
 
-Código en informe Rmd:
+<!-- --- -->
 
-<img src="ref_tbl_real.png" alt="" style="width:80%;"; margin-left: 0px; margin-top: 20px;>
+<!-- ## Referencias cruzadas para secciones -->
 
-Como se ve en el archivo compilado:
 
-<img src="ref_tbl_vista.png" alt="" style="width:70%;"; margin-left: 0px; margin-top: 20px;>
+<!-- Se referencia con `#` la sección de interés y se la llama en el documento utilizando `\@ref(seccion)` -->
 
----
+<!-- <img src="ref_seccion.png" alt="" style="width:100%;"; margin-left: 0px; margin-top: 20px;> -->
 
-## Referencias cruzadas para imágenes
+<!-- --- -->
 
-- Fundamental agregar parámetro `fig.cap=...` en el chunk
+<!-- ## Referencias cruzadas para tablas -->
 
-- Para imágenes incluidas con knitr::include_graphics() se utiliza `\@ref(nombre_chunk)`
+<!-- - Necesario darle nombre al chunk donde se encuentra la tabla -->
 
-<img src="ref_fig.png" alt="" style="width:110%;"; margin-left: 0px; margin-top: 20px;>
+<!-- - Debe hacerse entre enseguida de la primer `r`: `{r XXX, ...}` -->
+
+
+<!-- Código en informe Rmd: -->
+
+<!-- <img src="ref_tbl_real.png" alt="" style="width:80%;"; margin-left: 0px; margin-top: 20px;> -->
+
+<!-- Como se ve en el archivo compilado: -->
+
+<!-- <img src="ref_tbl_vista.png" alt="" style="width:70%;"; margin-left: 0px; margin-top: 20px;> -->
+
+<!-- --- -->
+
+<!-- ## Referencias cruzadas para imágenes -->
+
+<!-- - Fundamental agregar parámetro `fig.cap=...` en el chunk -->
+
+<!-- - Para imágenes incluidas con knitr::include_graphics() se utiliza `\@ref(nombre_chunk)` -->
+
+<!-- <img src="ref_fig.png" alt="" style="width:110%;"; margin-left: 0px; margin-top: 20px;> -->
 
 <!-- , en otros casos `\ref{nombre_chunk}`  -->
+  
+  
+
   
 ---
 
