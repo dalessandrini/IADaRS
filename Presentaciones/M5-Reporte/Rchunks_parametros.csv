@@ -1,0 +1,6 @@
+Parámetro	Valor por defecto	Qué hace
+eval	TRUE	evalúa código, muestra resultados
+echo	TRUE	muestra código R en documento
+warning	TRUE	muestra advertencias en documento
+error	TRUE	muestra los errores
+message	TRUE	muestra todos los mensajes

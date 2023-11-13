@@ -1,0 +1,8 @@
+Parámetro	Qué hace	Ejemplo
+fig.height	altura (en pulgadas por defecto)	fig.height=5
+fig.width	ancho (en pulgadas por defecto)	fig.width=3
+fig.scale	escala/tamaño	fig.scale=0.8
+fig.align	alineación	fig.align='center'
+fig.cap/sub.cap	Título/subtítulo	fig.subcap=”Detalles”
+fig.pos	posición en documento	fig.pos='H'
+fig.path	Directorio donde está imagen	fig.path='C:/Carpeta'
