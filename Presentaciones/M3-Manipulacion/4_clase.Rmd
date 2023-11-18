@@ -1,0 +1,782 @@
+---
+title: |
+   # Módulo 3: Manipulación de datos
+   ## Ecosistema Tidyverse
+   ## Parte I  
+# title: "Introducción al análisis de datos con R y RStudio"
+# subtitle: "Módulo 3: Trabajando con datos o dataset"
+# subtitle: "Inportar y exportar datos"
+author: "Leticia Debera, Darío Padula y Daniel Alessandrini"
+institute: "Intendencia de Montevideo"
+date: "2023/11/16" 
+#(updated: `r Sys.Date()`)"
+output:
+  # revealjs::revealjs_presentation:
+  xaringan::moon_reader:
+    self_contained: true
+    css: [default, fc, fc-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+--- 
+
+# ¿Qué es `tidyverse`?
+
+Es un conjunto de paquetes construídos para el **análisis y manipulación de datos**. La librería `tidyverse` se basa en:
+
+- el principio de **tidy data** (datos ordenados). Refiere al formato (cada _Observación_ en una Fila, cada _Variables_ en una Columnas y cada _Valor_ en una Celda) 
+- y en la filosofía **verb-based**, refiere al uso de funciones descriptivas y expresivas que representan acciones comunes de manipulación de datos, facilitando el código legible y modular.
+  + Esta filosofía va de la mano con la construcción de cadenas de funciones utilizando **pipe**.
+
+
+<img src="Imagenes/Tidyverse.png" alt="Descripción de la imagen" style="width:45%; margin-left: 200px; margin-top: 0px;">
+
+---
+
+# ¿Qué librerías están contenidas en `tidyverse`?
+
+Hay muchas librerías que forman parte del ecosistema `tidyverse`, pero cuando cargamos la librería `tidyverse` solo se cargan algunas librerías, el resto hay que cargarlas aparte.
+
+Las que se cargan por defecto son:
+
+- **`tibble`**: Alternativa moderna y eficiente a los data frames tradicionales. Son estructuras de datos rectangulares con comportamiento mejorado y algunas funciones adicionales para facilitar la manipulación de datos.
+- **`readr`**: Importar y exportar datos en formato de texto. 
+- **`dplyr`**: Funciones para manipular datos realizando tareas como: filtrar filas, seleccionar columnas, agrupar datos, ordenar y combinar conjuntos de datos.
+- **`tidyr`**: Funciones para manipulación y transformación de datos, por ejemplo: separar y unir columnas, cambiar el formato de los datos entre ancho y largo, y manejar datos faltantes.
+- **`ggplot2`**: Visualización de datos que aplica una estructura de capas para construir gráficos. Permite crear gráficos de alta calidad.
+- `lubridate`: Herramienta muy útil en R para trabajar con fechas y horas en un formato más amigable y sencillo.
+- `purrr`: Permite aplicar funciones a través de iteraciones, trabajar con listas y vectores de manera más eficiente.
+- `forecast`: Realizar pronósticos y análisis de series de tiempo.
+- `stringr`: Manipulación y manipulación de cadenas de texto.
+
+---
+
+- Seguramente cuando cargaron la librería `tidyverse` les apareció en la consolo el siguiente mensaje indicando:
+  + Las librerías que se instalaron por defecto
+  + Los **conflictos** que existen con librerías ya instaladas.
+  
+```{r, message=F,warning=F,comment=F,echo = F}
+library(tidyverse)
+```
+  
+
+<img src="Imagenes/libTidyvers.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 0px;">
+
+### Arreglemos los conflictos usando la librería `conflicted`
+
+Los conflictos se generan cuando existen **nombres de funciones iguales**  que se encuentran en **librerías cargadas distintas**. Esto lo podemos solucionar indicando qué librería utilizar en el caso que exista conflicto.
+
+Para esto, el código es:
+
+```{r, eval = F}
+library(conflicted) # Cargamos la librería
+conflict_prefer(name = 'filter',winner = 'dplyr')
+conflict_prefer(name = 'select',winner = 'dplyr')
+```
+
+```{r, eval = T,warning=F,message=FALSE,echo = F,results='hide'}
+library(conflicted) # Cargamos la librería
+conflict_prefer(name = 'filter',winner = 'dplyr')
+conflict_prefer(name = 'select',winner = 'dplyr')
+```
+
+
+```{r,message=F,comment=F, include=FALSE}
+## Usando readr
+datH = read_delim(file = '../../Bases/baseHog.csv',col_names = T,delim = ';',
+                  na = c('NA','---'))
+```
+
+---
+class: center, middle, inverse
+
+# Manipulación de datos
+
+---
+# Manipulación de datos: `dplyr`
+
+Veremos algunas de las funciones típicas de esta librería:
+
+- **mutate()**: agrega o transforma variables, por lo general, utilizando variables ya existentes.
+- **select()**: selecciona variables por sus nombres o posición en los datos.
+- **filter()**: elige filas de los datos dependiendo de alguna condición lógica.
+- **summarise()**: resume los datos de las columnas usando alguna función (ejemplo: media, desvío, mediana, etc.)
+- **arrange()**: ordena las filas de la tabla en función de una o más variables.
+
+Todas estas funciones se combinan perfectamente para trabajar con datos agrupados en el contexto de:
+
+- **group_by()**: agrupa los datos en función de una o más variables elegidas (ej: País, Departamento, Sexo).
+
+---
+
+## dplyr: función `mutate()`
+
+#### Con esta función podemos transformar o agregar nuevas columnas/variables a nuestros datos.
+
+
+**Ejemplo de juguete**: Supongamos que tenemos estos datos:
+
+```{r, eval = T,echo = F}
+misDatos = data.frame(col1 = c(1:3),col2 = c(4:6))
+```
+```{r, eval = T}
+misDatos
+```
+
+--
+
+La estructura básica de mutate es la siguiente:
+
+```{r}
+outDatos = mutate(misDatos,
+                  newVar1 = col1*col2,
+                  col1 = col1^2,
+                  newVar2 = sqrt(col1))
+```
+
+--
+
+```{r, echo = F}
+outDatos
+```
+
+--
+
+¿Qué pasó con la columna `col1`?
+
+---
+
+## dplyr: función `mutate()` y algunas funciones de uso
+
+#### Podemos agregar funciones que sean resultado de otras funciones, por ejemplo:
+
+- `paste()`: pega cadenas de string.
+
+```{r,eval = F}
+res = paste(str1,str2, sep = 'algun separador')
+```
+
+
+- `ifelse()`: es como la función **si** del excel. También se puede anidar.
+
+```{r,eval = F}
+res = ifelse(condicion,valor SI, valor NO)
+```
+
+- `case_when()`: es como el **ifelse** con la diferencia que aquí no hay que anidar funciones ifelse, solo hay que poner todas las condiciones necesarias.
+
+```{r,eval = F}
+res = case_when(condicion ~ valor SI, TRUE ~ valor NO)
+```
+
+- `cut()`: Recodificar variables numéricas (continuas) en una variable por intervalos.
+
+```{r,eval = F}
+res = cut(varCont, breaks = c(Ini,cut1,cut2,...,cutn,Fin))
+```
+
+---
+# Ejercicio: trabajando con el dataset de la Encuesta Contínua de Hogares 
+
+* Abrir un nuevo script, guardarlo como M3_2 
+
+* Levantar el dataset baseHog.csv que está en la carpeta Bases (ojo con la ruta)
+
+* Ver las dimensiones y características de las variables
+
+* Descargar el paquete `tidyverse` y cargarlo para su uso
+
+---
+
+## dplyr: función `mutate()`: Aplicaciones de funciones
+
+### Hagamos un ejemplo real usando los datos `datH` creando las siguientes variables:
+
+- `ysoH_svl`: el **ingreso del hogar (ht11) sin el valor locativo (ht13)**
+  
+--
+
+```{r, eval = F}
+datH <- mutate(datH, ysoH_svl = ht11 - ht13)
+```
+
+
+- `ypc`: que sea el **ingreso per cápita del hogar** 
+  
+--
+  
+```{r,eval = F}
+datH <- mutate(datH,ypc = ht11/ht19)
+```
+
+--
+
+- `ht11_r2_(if/cw)` (integer): variable dummy (0,1) que indique si el ingreso del hogar es *mayor al promedio*. Usando las funciones `ifelse()` y `case_when()`
+
+--
+
+```{r}
+prom_ht11 = mean(datH$ht11,na.rm = T)
+# ifelse
+datH <- mutate(datH,ht11_r2_if = ifelse(ht11 > prom_ht11,1,0))
+# case_when
+datH <- mutate(datH,ht11_r2_cw = case_when(ht11 > prom_ht11 ~ 1,
+                                           TRUE ~ 0))
+```
+
+---
+
+## dplyr: función `mutate()`: Aplicaciones de funciones continuación
+
+- `CCZ_lab` (string): variable que tenga el nombre del CCZ, por ejemplo **CCZ x**. Usar la función `paste()`.
+
+--
+
+```{r}
+datH <- mutate(datH,
+               CCZ_lab = paste('CCZ',ccz,sep = ' '))
+```
+
+--
+
+- `rEdad_Jefe_(cut/if/cw)` (factor/string): variable con la edad de los jefes de hogar recodificada en 3 categorías (**35 o menos**, **de 36 a 59**, **60 o más**). Crear esto usando las funciones `case_when()`, `ifelse()` y `cut()`. 
+
+--
+
+```{r}
+
+# cut
+datH <- mutate(datH,
+           rEdad_Jefe_cut = cut(e27,breaks = c(-Inf,35,59,Inf),
+                              labels = c('35 o menos','de 36 a 59','60 o más')))
+# ifelse
+datH <- mutate(datH,
+           rEdad_Jefe_if = ifelse(e27 <= 35,'35 o menos',
+                                  ifelse(e27 > 35 & e27 <= 59,'de 36 a 59',
+                                         '60 o más')))
+# case_when
+datH <- mutate(datH,
+           rEdad_Jefe_cw = case_when(e27 <= 35 ~ '35 o menos',
+                                     e27 > 35 & e27 <= 59 ~ 'de 36 a 59',
+                                       TRUE ~ '60 o más'))
+```
+
+---
+
+## dplyr: función `mutate()`: Aplicaciones de funciones continuación
+
+- `ht11_r2_fac` (factor): Cambiar la clase de la variable `ht11_r2_(if/ca)` a factor con las etiquetas (**<= Media**, **> Media**).
+
+--
+
+```{r}
+datH <- mutate(datH,
+               ht11_r2_fac = factor(ht11_r2_if,levels = c(0,1),
+                                    labels = c('<= Media','> Media')))
+```
+
+--
+
+```{r}
+## TODO DENTRO DE 1 solo mutate
+datH <- 
+  mutate(datH,
+         ysoH_svl = ht11 - ht13,
+         ypc = ht11/ht19,
+         ht11_r2_if = ifelse(ht11 > prom_ht11,1,0),
+         ht11_r2_cw = case_when(ht11 > prom_ht11 ~ 1,
+                                TRUE ~ 0),
+         CCZ_lab = paste('CCZ',ccz,sep = ' '),
+         rEdad_Jefe_cut = cut(e27,breaks = c(-Inf,35,59,Inf),
+                              labels = c('35 o menos','de 36 a 59','60 o más')),
+         rEdad_Jefe_if = ifelse(e27 <= 35,'35 o menos',
+                                ifelse(e27 > 35 & e27 <= 59,'de 36 a 59',
+                                       '60 o más')),
+         rEdad_Jefe_cw = case_when(e27 <= 35 ~ '35 o menos',
+                                   e27 > 35 & e27 <= 59 ~ 'de 36 a 59',
+                                   TRUE ~ '60 o más'),
+         ht11_r2_fac = factor(ht11_r2_if,levels = c(0,1),
+                              labels = c('<= Media','> Media'))
+         )
+```
+
+---
+
+## dplyr: función `select()`
+
+Esta función nos sirve para seleccionar columnas/variables de nuewstro set de datos.
+
+Varias formas de selecionar columnas:
+
+--
+
+- Indicando las posiciones de las columnas.
+
+--
+
+```{r}
+datH_sel0 = select(datH,c(1,4:6))
+```
+
+--
+
+- Con los nombres de las columnas.
+
+--
+
+```{r}
+datH_sel1 = select(datH,c(correlativ,ccz:e26))
+```
+
+--
+
+- Indicando con qué comienzan o finalizan los nombres.
+
+
+```{r}
+datH_sel2 = select(datH,starts_with('ht'))
+datH_sel3 = select(datH,ends_with(c('if','cw')))
+```
+
+--
+
+- Con un vector de nombres de columnas como strings.
+
+--
+
+```{r}
+varsSelect = c("correlativ","ccz","municipio","e26")
+datH_sel4 = select(datH,one_of(varsSelect))
+```
+
+---
+
+## dplyr: función `filter()` 
+
+Se utilizan **opreradores de relación y lógicos** para realizar los filtros. Vamos a explorar varios ejemplos:
+
+--
+
+- Seleccionar los hograres que pertenecen al **Municipio A** 
+
+--
+
+```{r, eval = F}
+datH_filt = filter(datH,municipio == 'A')
+```
+
+--
+
+- Los que **NO Pertenecen al Municipio A**
+
+--
+
+```{r, eval = F}
+datH_filt = filter(datH,municipio != 'A')
+```
+
+--
+
+- Los hogares que están en los **Municipios A o D**
+
+--
+
+```{r, eval = F}
+datH_filt = filter(datH,municipio %in% c('A','D'))
+```
+
+
+- Los hogares **unipersonales con ingresos mayores a $30000** 
+
+--
+
+```{r, eval = F}
+datH_filt = filter(datH, ht11 > 30000 & ht19 == 1)
+```
+
+---
+
+## dplyr: función `filter()` continuación
+
+- Los hogares donde su **ingreso es menor al doble del valor locativo**
+
+--
+
+```{r, eval = F}
+datH_filt = filter(datH, ht11 < ht13*2)
+```
+
+--
+
+- Hogares del **Comunal 5 que tienen ingresos mayores a $60000**
+
+--
+
+```{r,eval = F}
+datH_filt = filter(datH,ccz == 5 & ht11 > 60000)
+```
+
+---
+
+## dplyr: función `summarise()` 
+
+Esta función sirve vara **resumir información de un set de datos**, se pueden realizar múltiples resúmenes de varias variables, por ejemplo: 
+
+--
+
+- **Una variable una función de resumen**: Para la variable **ht11** queremos saber el **promedio**
+
+--
+
+```{r eval = F}
+res = summarise(datH, 
+                ht11_media = mean(ht11,na.rm = T))
+```
+
+--
+
+- **Más de una variable una función de resumen**: Para la variable **ht11** y **ht19** queremos saber el **promedio**
+
+--
+
+```{r eval = F}
+res = summarise(datH, 
+                ht11_media = mean(ht11,na.rm = T),
+                ht19_media = mean(ht19,na.rm = T))
+```
+
+--
+
+- **Más de una variable y más de una función de resumen**: Para la variable **ht11** y **ht19** queremos saber: el promedio, el desvío estandar y cuántos datos faltantes tienen.
+
+--
+
+```{r, eval = F}
+res = summarise(datH, 
+                ht11_media = mean(ht11,na.rm = T),
+                ht11_sd = sd(ht11,na.rm = T),
+                ht11_NA = sum(is.na(ht11)),
+                ht19_media = mean(ht19,na.rm = T),
+                ht19_sd = sd(ht19,na.rm = T),
+                ht19_NA = sum(is.na(ht19))) 
+```
+
+---
+
+## dplyr: función `arrange()`
+
+Ordena la tabla en función de una o más variables. Lo hace de mayor a menor (números o strings) y si se quiere que sea descendente hay que usar ***desc()***.
+
+--
+
+- Orden **ascendente por ht11**
+
+--
+
+```{r, eval = F}
+datH_orden = arrange(datH,ht11)
+```
+
+--
+
+- Orden **ascendente por municipio (string) y luego ascendente por ht11**
+
+--
+
+```{r, eval = F}
+datH_orden = arrange(datH,municipio,ht19,ht11)
+```
+
+--
+
+- Orden **ascendente por municipio (string) y luego ascendente por ht19 y descendente por ht11**
+```{r,eval = F}
+datH_orden = arrange(datH,municipio,ht19,desc(ht11))
+```
+
+---
+
+## dplyr:  `%>%` (pipes o tuberías)
+
+- Una de las grandes ventajas de la librería ***dplyr*** es que permite escribir el código de forma encadenada utilizando **`%>%`** (pipes).
+
+- **Antes**, en R, cada transformación a un set de datos había que realizarla linea a linea, esto **generaba códigos largos y difíciles de iterpretar**.
+
+- Con ***dplyr*** el código se puede escribir como un flujo de acciones que toma como insumo algún objeto (por lo general set de datos) y se le van aplicando acciones encadenadas hasta obtener el resultado deseado.
+
+--
+
+<img src="Imagenes/Flujo_dplyr.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 0px;">
+
+--
+
+<img src="Imagenes/Flujo_Funciones.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 0px;">
+
+---
+
+## dplyr:  `%>%` (pipes o tuberías) Continuación
+
+- El esqueleto de un código que realiza este flujo de acciones sería:
+
+--
+
+```{r, eval = F}
+resultado = misDatos %>% 
+  filter(condiciones de filtro) %>% 
+  select(variables a elegir) %>% 
+  mutate(crear las variables nuevas) %>% 
+  group_by(variable/s de agrupación) %>% 
+  summarise(funcion/es para resumir los datos) %>% 
+  ungroup() %>% 
+  arrange(variable/s para ordenar)
+```
+
+--
+
+- ¿Qué hace la función `group_by()`?
+
+--
+
+- ¿Qué hace la función `ungroup()`?
+
+---
+
+## dplyr:  `group_by` y `ungroup()`
+
+La función `group_by()` permite **agrupar los datos en función de uno o más variables**. Esto implica que todo lo que se haga a continuación en los datos se aplicará a cada partición. Esta función es útil para:
+
+- ### Crear/transformar variables u ordenar los datos `dentro de cada grupo`:
+
+ + Crear nuevas variables que considera información de cada grupo (por ejemplo, a una variable numérica restarle el promedio de cada grupo). Usando `mutate()`
+ + Ordenar los datos dentro de cada grupo Usando `arrange()`.
+ + Otras funciones útiles: `row_number()`, `cumsum()`, `cut()`, `lag()`, `lead()`, etc.
+  
+- ### Resumen de datos `por grupos`:
+
+ + Resumir uno o más variables aplicando una o más funciones. Usando `summarise()`
+ + Contar la cantidad de filas en cada grupo. Usando `n()`.
+ + Seleccionar filas en cada grupo usando las funciones: `slice_head()`, `slice_sample()`, `slice_max()`, `slice_min()`.
+  
+---
+
+### `group_by()`: En el contexto de **crear/transformar variables u ordenar**
+
+- Agrupando por **una variable**
+
+--
+
+<img src="Imagenes/group_by01.png" alt="Descripción de la imagen" style="width:80%; margin-left: 0px; margin-top: 0px;">
+
+- Agrupando por **dos variable**
+
+--
+
+<img src="Imagenes/group_by02.png" alt="Descripción de la imagen" style="width:80%; margin-left: 0px; margin-top: 0px;">
+
+**En ambos casos se mantiene el número de filas.**
+
+---
+
+### `group_by()`: En el contexto de **resumen de datos**
+
+- Agrupando por **una variable**
+
+--
+
+<img src="Imagenes/group_by_Summ01.png" alt="Descripción de la imagen" style="width:80%; margin-left: 0px; margin-top: 0px;">
+
+- Agrupando por **dos variable**
+
+--
+
+<img src="Imagenes/group_by_Summ02.png" alt="Descripción de la imagen" style="width:80%; margin-left: 0px; margin-top: 0px;">
+
+**En ambos casos los datos se reducen a tantas filas como grupos haya.**
+
+---
+
+## `group_by()`: Ejemplo de juguete (crear/transformar variables u ordenar)
+
+Importemos los datos **toyGroupBy.csv** de la carpeta de **Datos**.
+
+```{r}
+datos = read.table('../../Bases/toyGroupBy.csv',sep = ',',dec = ',',header = T)
+```
+
+--
+
+- Considerar como grupo la columna **var1** y ordenar de forma ascendente cada grupo por la variable **var3**
+
+--
+
+```{r, eval = F}
+res = datos %>% group_by(Var1) %>% arrange(Var3)
+```
+
+--
+
+- Además crear las variables:
+
+  * **media**: promedio de la variable **Var4** de cada grupo.
+  * **nueva**: que sea la variable **Var4** menos el promedio de la variable **Var4** en cada grupo.
+  * **nueva2**: variable **Var4** menos la la variable creada **media**. Cómo son **nueva** y **nueva2**?
+  * **posGrupo**: posición de cada fila de dentro de cada grupo.
+
+--
+
+```{r, eval = F}
+res1 = datos %>% group_by(Var1) %>% arrange(Var3) %>% 
+  mutate(media = mean(mean(Var4,na.rm = T)),
+         nueva = Var4 - mean(Var4,na.rm = T),
+         nueva2 = Var4 - media,
+         posGrupo = row_number())
+```
+
+---
+
+--
+
+- Hagan los mismo pero tomando como variables de agrupación **Var1** y **Var2**
+
+--
+
+```{r, eval = F}
+res2 = datos %>% group_by(Var1,Var2) %>% arrange(Var3) %>% 
+  mutate(media = mean(mean(Var4,na.rm = T)),
+         nueva = Var4 - mean(Var4,na.rm = T),
+         nueva2 = Var4 - media,
+         posGrupo = row_number())
+```
+
+### Comparemos los objetos **res1** y **res2**
+
+--
+
+- El valor de la variable **media** es el mismo dentro de cada grupo
+- Las variables **nueva** y **nueva2** son identicas.
+- La variable **posGrupo** registran la posición de cada fila dentro de cada grupo.
+
+---
+
+## `group_by()`: Ejemplo de juguete (resumir datos)
+
+- Considerar como grupo la columna **var1** y calcular el prmedio y el desvío estandar de la columna  **var3**
+
+--
+
+```{r, eval = F}
+res = datos %>% group_by(Var1) %>% 
+  summarise(Var3_media = mean(Var3,na.rm = T),
+            Var3_sd = sd(Var3,na.rm = T))
+```
+
+--
+
+- Quedarse con las filas donde **Var4** es máxima en cada grupo.
+
+--
+
+```{r, eval = F}
+# Usando slice_max()
+res = datos %>% group_by(Var1) %>% slice_max(Var4)
+# Usando arrange() y slice_head()
+res = datos %>% group_by(Var1) %>% arrange(desc(Var4)) %>% slice_head()
+```
+
+--
+
+- Hagan los mismo pero tomando como variables de agrupación **Var1** y **Var2**
+
+--
+
+```{r, eval = F}
+res = datos %>% group_by(Var1,Var2) %>% 
+  summarise(Var3_media = mean(Var3,na.rm = T),
+            Var3_sd = sd(Var3,na.rm = T))
+```
+
+--
+
+```{r,eval = F}
+# Usando slice_max()
+res = datos %>% group_by(Var1,Var2) %>% slice_max(Var4)
+# Usando arrange() y slice_head()
+res = datos %>% group_by(Var1,Var2) %>% arrange(desc(Var4)) %>% slice_head()
+```
+
+
+---
+
+## `ungroup()`: Desarmar la agrupación
+
+Cuando indicamos que vamos a trabajar con los datos agrupados usando `group_by()`, luego de realizar las transformaciones o agregaciones es **necesario des-agrupar los datos utilizando la función** `ungroup()`. **Si no lo hacemos, el resultado será un objeto que mantiene esa agrupación y puede generar errores en futuros procesamientos.**
+
+Para esto, solo hay que poner la función `ungroup()` cuando se quiere deshacer la agrupación. En el contexto del ejemplo anterior, sería:
+
+```{r, eval = F}
+res = datos %>% group_by(Var1,Var2) %>% 
+  summarise(Var3_media = mean(Var3,na.rm = T),
+            Var3_sd = sd(Var3,na.rm = T)) %>% 
+  ungroup()
+```
+
+Vean la clase del objeto **res** antes y despues de aplicar la función `ungroup()`.
+
+---
+
+## `dplyr()`: Ejemplo completo usando la ECH
+
+- Seleccionaremos las variables **municipio**, **ccz** y todas las que comiencen con **ht**, **Viv** y **Pobr**. `select()`
+- Crearemos las nuevas variables `mutate()`:
+  + **ysvl**: es el ingreso del hogar sin el valor locativo (ht11 - ht13).
+  + **vivInad**: variable que indique si el hogar está en una vivienda inadecuada (VivAdec == 3).
+- Agrupar los datos por **municipio** `group_by()`.
+- Calcular los siguientes resultados de resumen **para cada municipio** `summarise()`:
+  + **cczs**: variable de texto que contenga los ccz contenidos dentro del municipio. Usar funciones `unique()` y `paste()`.
+  + **nHogares**: cantidad de hogares dentro de cada Municipio. Usar función `n()`.
+  + **ysvl_promedio**: Promedio de la variable **ysvl** por Municipio. Usar función `mean()`.
+  + **vivInad_porc**: Porcentaje de hogares en viviendas inadecuadas. Usaremos la 
+  + **pobre_pocr**: Porcentaje de hogares pobres. Usaremos la función `mean()`.
+  + **nPerProm**: Promedio de personas en los hogares. Función `mean()`.
+- Desagruparemos los datos `ungroup()`.
+- Ordenaremos de forma decreciente por la variable **pobre_porc** `arrange()`.
+- **pobre_dif**: Diferencia entre la variable **pobre_porc** y su promedio. Usar `mutate()`.  
+
+--- 
+---
+
+### El código que realiza lo que se solicita queda definido así.
+
+```{r, eval = F}
+resultado = datH %>% 
+  ## Se seleccionan variables a usar
+  select(c(municipio,ccz,starts_with(c('ht','Viv','Pobr')))) %>% 
+  ## Se crean nuevas variables
+  mutate(ysvl = ht11 - ht13,
+                vivInad = VivAdec == 3) %>% 
+  ## Se agrupan los datos
+  group_by(municipio) %>% 
+  ## Se resumen los datos para cada grupo
+  summarise(cczs = paste(sort(unique(ccz)),collapse = ' '),
+            nHogares = n(),
+            ysvl_promedio = round(mean(ysvl,na.rm = T)),
+            vivInad_porc = round(100*mean(vivInad,na.rm = T),1),
+            pobre_porc = round(100*mean(pobre,na.rm = T),1),
+            nPerProm = round(mean(ht19,na.rm = T),1)) %>% 
+  ## Se desagrupan los datos
+  ungroup() %>% 
+  ## Se ordenan los datos
+  arrange(desc(pobre_porc)) %>% 
+  ## Nueva variable
+  mutate(pobre_dif = pobre_porc - mean(pobre_porc,na.rm = T))
+```
+

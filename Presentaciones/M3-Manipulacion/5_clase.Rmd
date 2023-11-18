@@ -1,0 +1,786 @@
+---
+title: |
+   # Módulo 3: Manipulación de datos
+   ## Librerías dplyr y tidyr
+   ## Parte II  
+# title: "Introducción al análisis de datos con R y RStudio"
+# subtitle: "Módulo 3: Trabajando con datos o dataset"
+# subtitle: "Inportar y exportar datos"
+author: "Leticia Debera, Darío Padula y Daniel Alessandrini"
+institute: "Intendencia de Montevideo"
+date: "2023/11/21" 
+#(updated: `r Sys.Date()`)"
+output:
+  # revealjs::revealjs_presentation:
+  xaringan::moon_reader:
+    self_contained: true
+    css: [default, fc, fc-fonts]
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+```
+
+
+---
+# Repaso: `dplyr`
+
+- ### Decribimos algunas librerías dentro del ecosistema `tidyverse`.
+- ### Presentamos distintas funciones de la librería `dplyr`, como: `mutate()`, `filter()`, `arrange()`, `summarise()` y `group_by()`
+- ### Definimos la forma de generar secuencias de acciones aplicando funciones encadenadas utilizando los pipes o tuberías (`%>%`)
+- ### Mostramos un ejemplo usando datos de la ECH donde se muestran muchas de estas funciones como un flujo de acciones.
+
+---
+
+# Hoy veremos
+
+- ## Combinar datos de **distintos set de datos**:
+  + `inner_join()`: junta tablas por una o más variables comunes y se queda con las filas que coinciden. 
+  + `left_join()`: junta tablas por una o más variables comunes y mantiene siempre las filas de la izquierda.
+  + `right_join()`:  junta tablas por una o más variables comunes y mantiene siempre las filas de la derecha.
+  + `full_join()`:  junta tablas por una o más variables comunes y mantiene las filas de ambos set de datos.
+- ##  Funciones para **aplicar una o más funciones a un conjunto de variables**:
+  + `mutate_at()`, `mutate_if()`: transforma variables para un conjunto de columnas dadas (_at) o que ecumplen alguna condición (_if) 
+  + `summarise_at()`, `summarise_if()`: resume un conjunto de columnas dadas (_at) o que ecumplen alguna condición (_if) 
+  
+---
+class: inverse, center, middle
+
+# Combinar datos de **distintos set de datos**
+
+---
+## Combinar datos: `xxx_join()`
+
+Las funciones de `join` sirven para combinar datos de dos tablas diferentes, por ejemplo:
+
+- **Set de datos 1**: En un una tabla o set de datos tenemos las compras que realizan clientes en internet (filas), cada cliente aparece en la tabla tantas veces como compras haya realizado, cada cliente tiene un ID único que permite saber qué cliente es. 
+- **Set de datos 2**: tenemos información estática de los clientes: **fecha de nacimiento**, *barrio donde vive*, *sexo al nacer*, etc.  También tiene la variable **ID** que identifica a cada cliente.
+
+Las funciones de `xxx_join()` sirven para para anexar información de una tabla a otra, ya sea creando una nueva tabla o modificando una tabla existente.
+
+### ¿Qué tipos de `join` existen?
+
+--
+
+- `left_join()`: la tabla resultado tiene todas las filas de la tabla de la izquierda y descarta las filas de la tabla derecha cuyas variable/s usadas como IDs no están presentes en la tabla de la izquierda.
+
+--
+
+- `right_join()`: la tabla resultado tiene todas las filas de la tabla derecha y descarta las filas de la tabla izquierda cuyas variable/s usadas como IDs no están presentes en la tabla de la derecha.
+
+--
+
+- `inner_join()`: la tabla resultado tiene elementos cuyas variable/s usadas como IDs están en ambas tablas.
+
+--
+
+- `full_join()`: la tabla resultado tiene todas las filas de ambas tablas.
+
+---
+
+## Ejemplo visual de los distintos `join` 
+
+<img src="Imagenes/ejemploJoins.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 30px;">
+
+La imagen fue sacada de aquí <https://rpubs.com/williamsurles/293454>
+
+---
+# Ejercicio con tablas de juguete
+
+* Abrir un nuevo script, guardarlo con el nombre M3_3
+* Cargar la librería `tidyverse`
+```{r, eval = F}
+library(tidyverse) # Cargamos la librería
+```
+* Arreglar los conflictos
+
+```{r, eval = F}
+library(conflicted) # Cargamos la librería
+conflict_prefer(name = 'filter',winner = 'dplyr')
+conflict_prefer(name = 'select',winner = 'dplyr')
+```
+
+```{r, eval = T,warning=F,message=FALSE,echo = F,results='hide'}
+library(conflicted) # Cargamos la librería
+conflict_prefer(name = 'filter',winner = 'dplyr')
+conflict_prefer(name = 'select',winner = 'dplyr')
+```
+
+#### Importaremos las siguientes tablas para hacer distintos `join`
+
+```{r}
+datID1 = read.table('Bases/joinID1.csv',sep = ',',header = T)
+dat02 = read.table('Bases/joinTabla2.csv',sep = ',',
+                   header = T, dec = ',')
+datLarga = read.table('Bases/joinTablaLarga.csv',sep = ',',
+                      header = T,dec = ',')
+```
+
+--
+- Vean las tres tablas cargadas poniendo `View(xxx)`
+
+--
+
+- ¿Qué características tienen las tablas?
+
+---
+
+### Ejercicio 1) Crear la tabla `join01` que tenga TODA la información de la tabla `dat02` más la información que se encuentra en la tabla `datID1`. 
+
+--
+
+- ¿Que funcion `join` usaremos?
+
+--
+
+```{r}
+library(dplyr)
+join01 = left_join(dat02,datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo sería usando pipes `%>%`?
+
+--
+
+```{r}
+join01 = dat02 %>% left_join(datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo queda la tabla?
+
+--
+
+```{r, echo = F}
+join01
+```
+
+---
+
+### Ejercicio 2) Crear la tabla `join02` que tenga TODA la información de la tabla `datID1` más la información que se encuentra en la tabla `dat02`. 
+
+--
+
+- ¿Que funcion `join` usaremos?
+
+--
+
+```{r}
+join02 = right_join(dat02,datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo sería usando pipes `%>%`?
+
+--
+
+```{r}
+join02 = dat02 %>% right_join(datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo queda la tabla?
+
+--
+
+```{r, echo = F}
+join02
+```
+
+---
+
+### Ejercicio 3) Crear la tabla `join03` que tenga la información con variables de asociación presentes en ambas tablas `datID1` y `dat02`. 
+
+--
+
+- ¿Que funcion `join` usaremos?
+
+--
+
+```{r}
+join03 = inner_join(dat02,datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo sería usando pipes `%>%`?
+
+--
+
+```{r}
+join03 = dat02 %>% inner_join(datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo queda la tabla?
+
+--
+
+```{r, echo = F}
+join03
+```
+
+---
+
+### Ejercicio 4) Crear la tabla `join04` que tenga toda la información de las tablas `datID1` y `dat02`. 
+
+--
+
+- ¿Que funcion `join` usaremos?
+
+--
+
+```{r}
+join04 = full_join(dat02,datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo sería usando pipes `%>%`?
+
+--
+
+```{r}
+join04 = dat02 %>% full_join(datID1, by = 'id1')
+```
+
+--
+
+- ¿Cómo queda la tabla?
+
+--
+
+```{r, echo = F}
+join04
+```
+
+---
+
+### Ejercicio 5) Crear una tabla llamada `join05` que contenga toda la información de la tabla `datLarga` y asociarle la informacion que se pueda vincular de la tabla `dat02`.
+
+--
+
+- ¿Que función de `join` usaría?
+
+--
+
+- ¿Qué particularidad tiene este `join` con respecto a los ya vistos en los otros ejercicios?
+
+--
+
+```{r}
+join05 = datLarga %>% left_join(dat02, by = c('ID1' = 'id1','id2'))
+```
+
+--
+
+- ¿Cómo queda la tabla?
+
+--
+
+```{r, echo = F}
+join05
+```
+
+---
+
+## Aplicar función/es a muchas variables: `mutate_at/if()` y `summarise_at/if()`
+
+Estas funciones son útiles si necesitamos hacer **una o más transformación a más de una variable**.
+
+--
+
+- Vamos a presentar ejemplos utilizando una tabla de juguete llamada `datosMutSum.csv`
+
+
+```{r, eval = F,echo = F}
+nfilas = 15
+set.seed(1234)
+datms = data.frame(Text1 = rep(LETTERS[1:5],each = 3),
+                   Col2 = rnorm(15,10,3),
+                   Col3 = rnorm(15,2,1),
+                   Col4 = sample(100,nfilas),
+                   Text5 = sample(LETTERS,15))
+                   
+write.table(datms,'Bases/datMutateSumm.csv',sep = ';',row.names = F)
+```
+
+
+```{r}
+datToy = read.table('Bases/datMutateSumm.csv',sep = ';',header = T)
+```
+
+
+```{r, echo = F}
+datToy
+```
+
+---
+class: inverse, center, middle
+
+# Funciones para **aplicar una o más funciones a un conjunto de variables**
+
+---
+## Usando: `mutate_at` y `mutate_if()`
+
+Supongamos que queremos realizar las siguientes transformaciones en la tabla `datToy`:
+
+- Convertir las columnas de texto (Text1 y Text5) a minúculas
+- Estandarizar las variables numéricas (Col2, Col3 y Col4). **En este caso la estandarización que usaremos es restar la medio (centrar) y dividir entre la desviación típia, esto se hace con la función `scale()`**
+
+Usando lo que sabemos hasta ahora el código sería:
+
+```{r}
+datRes = datToy %>% mutate(Text1 = tolower(Text1),
+                           Text5 = tolower(Text5),
+                           Col2 = scale(Col2),
+                           Col3 = scale(Col3),
+                           Col4 = scale(Col4))
+```
+
+--
+
+- En este caso son pocas variables, si en vez de tener que estandarizar tres variables tenemos 100 para estandarizar? Como que sería medio tedioso hacer esas transformaciones de a una, además que el código quedaría larguísimo!!!!
+
+--
+
+- Sería bueno poder elegir un grupo de variables (`_at`) o elegir variables que tengán alguna característica (`_if`) para que les aplique uno o más transformaciones. 
+
+---
+
+## Usando: `mutate_at` y `mutate_if()` continuación
+
+- ### Usando `mutate_at`: hay muchas formas de "elegir las variables"
+
+--
+
+La estructura es: **mutate_at(variables elegidas, funcion/es)**
+
+--
+
+```{r}
+### Usando vector de nombres de las columnas 
+res_at = datToy %>% mutate_at(c('Text1','Text5'),.funs = tolower) %>%
+  mutate_at(c('Col2','Col3','Col4'),.funs = scale)
+
+### Usando las variables que coinciden usando vars
+res_at = datToy %>% mutate_at(vars(Text1,Text5),.funs = tolower) %>%
+  mutate_at(vars(c(Col2:Col4)),.funs = scale)
+
+### Usando las variables que coinciden con parte del texto
+res_at = datToy %>% mutate_at(vars(matches(c("Text"))),.funs = tolower) %>%
+  mutate_at(vars(matches(c('C'))),.funs = scale)
+```
+
+--
+
+- ### Usando `mutate_if`
+
+--
+
+La estructura es: **mutate_if(Condición, funcion/es)**
+
+--
+
+```{r}
+res_if = datToy %>% mutate_if(is.character,.funs = tolower) %>%
+  mutate_if(is.numeric,.funs = scale)
+```
+
+---
+
+## Usando: `summarise_at` y `summarise_if()`
+
+Supongamos que queremos realizar las siguientes transformaciones en la tabla `datToy`:
+
+- Queremos tener algunas medidas de resumen agrupando (`group_by`) por la variable **Text1**
+- Calcular la **media** y la **desviación típica** de las variables numéricas (Col2, Col3 y Col4)
+- Quedarnos con el primer elemento de cada grupo de las variables de texto (`first`).
+
+Usando lo que sabemos hasta ahora el código sería:
+
+--
+
+```{r}
+datSum = datToy %>% group_by(Text1) %>% 
+  summarise(Text5 = first(Text5),
+            Col2_media = mean(Col2,na.rm = T),
+            Col3_media = mean(Col3,na.rm = T),
+            Col4_media = mean(Col4,na.rm = T),
+            Col2_sd = sd(Col2,na.rm = T),
+            Col3_sd = sd(Col3,na.rm = T),
+            Col4_sd = sd(Col4,na.rm = T))
+```
+
+--
+
+```{r, echo = F}
+datSum
+```
+
+---
+
+## Usando: `summarise_at` y `summarise_if()` continuación
+
+La forma de usarlo es identica a la que ya viemos con `mutate_at` y `mutate_if()`. 
+
+Vamos a tratar de reproducir lo que vimos en la diapositiva anterior
+
+```{r, eval = F}
+datSum = datToy %>% group_by(Text1) %>% 
+  summarise(Text5 = first(Text5),
+            Col2_media = mean(Col2,na.rm = T),
+            Col3_media = mean(Col3,na.rm = T),
+            Col4_media = mean(Col4,na.rm = T),
+            Col2_sd = sd(Col2,na.rm = T),
+            Col3_sd = sd(Col3,na.rm = T),
+            Col4_sd = sd(Col4,na.rm = T))
+```
+
+--
+
+¿Qué problema tenemos para reproducir lo anterior?
+
+--
+
+- A diferencia de `mutate`, no podemos poner más de un `summarise` en la misma secuencia dentro de un mismo `group_by()`. ¿Por qué es esto?
+
+```{r}
+### Lista con las funciones
+mis_Funciones = list(media = ~ mean(.,na.rm = T),
+                     sd = ~ sd(.,na.rm = T))
+### Codigo usando mutate_at
+datSum_at = datToy %>% group_by(Text1) %>% 
+  summarise_at(vars(Col2:Col4),.funs = mis_Funciones)
+```
+
+---
+
+## Usando: `summarise_at` y `summarise_if()` coninuación
+
+¿Como podemos solucionar esto?
+
+--
+
+- Hacemos el resumen para la variable de texto, como es una usamos `summarise`
+
+```{r}
+datSum_01 = datToy %>% group_by(Text1) %>% 
+  summarise(Text5 = first(Text5))
+```
+
+--
+
+- Hacemos el resumen para el otro grupo de variables usando `summarise_at()`
+
+```{r, eval = F}
+### Lista con las funciones
+mis_Funciones = list(media = ~ mean(.,na.rm = T),
+                     sd = ~ sd(.,na.rm = T))
+### Codigo usando mutate_at
+datSum_at = datToy %>% group_by(Text1) %>% 
+  summarise_at(vars(Col2:Col4),.funs = mis_Funciones)
+```
+
+--
+
+- Por último juntamos ambos resumenes usando una función `join`
+
+```{r}
+resultado = datSum_01 %>% left_join(datSum_at, by = 'Text1')
+```
+
+---
+
+class: inverse, center, middle
+
+# Manipulación de datos con `tidyr`
+
+---
+
+## Repaso: visto hasta ahora
+
+- ### Nuevo formato de datos: `tibble`
+- ### Paquete `{dplyr}`: manipulación datos
+ + Verbos: `mutate()`, `filter()`, `arrange()`, `summarise()`, `group_by()`
+ + Funciones para aplicar 1 o más funciones: `mutate_at()`, `mutate_if()`, `summarise_at()`, `summarise_if()`, `across()`
+- ### Pipes o tuberías: `%>%`
+- ### Joins: `inner_join()`, `left_join()`, `right_join()`, `full_join()`
+
+---
+
+## ¿Qué veremos hoy?: **paquete `tidyr`**
+
+`tidyr` herramienta para reorganizar nuestros datos
+
+- ### Cambiar de formato: ancho o largo
+  + `pivot_longer()`: pasa de formato ancho a largo
+  + `pivot_wider()`: pasa de formato largo a ancho
+  
+- ### Celdas: unir / dividir
+  + `unite()`: juntar celdas en varias columnas en una sola
+  + `separate()`:  inversa de `unite()`; separa celda en una columna a varias
+
+- ### Valores faltantes / perdidos
+  + `drop_na()`: elimina columnas con filas con `NA`s
+  + `replace_na`(): reemplaza `NA`s con lo que le pasemos
+  + `fill()`: rellena filas `NA` con valor anterior o posterior
+
+---
+
+## ¿Qué es `tidyr`?
+
+--
+
+-  Otro paquete dentro del metapaquete `tidyverse` 
+
+--
+
+- `Sirve para` manipular datos "ordenados" (formato **tidy**) de distinta manera
+
+--
+
+- `Recordar`: datos están "ordenados" (tidy) si:
+ + Cada variable está en una y solo una columna
+ + Cada observación/individuo está en una y solo una fila
+ + Cada valor tiene su propia celda
+
+<img src="Imagenes/tidy-data-wickham.png" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html"  style="width:100%; margin-left: 0px; margin-top: 20px;">
+
+---
+
+## Cambiar de formato tablas
+
+Muchas veces es necesario cambiar el formato de los datos para trabajarlos mejor
+
+<img src="Imagenes/tidyr-pivot_wider_longer.gif" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html" style="width: 65%; text-align: center;">
+
+---
+
+## Cambiar de formato: **`pivot_longer()`**
+
+_Que hace_: alarga datos colapsando varias columnas en solo dos: `names_to` y `values_to`
+
+```{r, eval=FALSE}
+
+library(tidyr)
+# Creamos data.frame 'wide' (ancho)
+wide <- data.frame("id"=1:2,
+                   "x"=c("a","b"),
+                   "y"=c("c","d"),
+                   "z"=c("e","f"))
+
+# Llevamos a formato largo: creamos 'long'
+long <- wide %>% pivot_longer(cols=x:z,
+                              names_to="key",
+                              values_to="val")
+
+long
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Creamos data.frame 'wide' (ancho)
+wide <- data.frame("id"=1:2,
+                   "x"=c("a","b"),
+                   "y"=c("c","d"),
+                   "z"=c("e","f"))
+
+library(tidyr)
+# Llevamos a formato largo: creamos 'long'
+long <- wide %>% pivot_longer(cols=x:z,
+                              names_to="key",
+                              values_to="val")
+
+long
+```
+
+---
+
+## Cambiar de formato: **`pivot_wider()`**
+
+
+_Que hace_: ensancha datos al expandir dos columnas en muchas. Una de las columnas provée los nombres, la otra los valores. Es la función inversa de `pivot_longer()`
+
+
+```{r, eval=FALSE}
+# Ensanchamos a 'long'
+wide <- long %>% pivot_wider(id_cols=id,
+                             names_from="key",
+                             values_from="val")
+
+wide
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Ensanchamos a 'long'
+wide <- long %>% pivot_wider(id_cols=id,
+                             names_from="key",
+                             values_from="val")
+
+wide
+```
+
+---
+
+## Unir celdas: **`unite()`**
+
+_Que hace_: junta celdas con datos en varias columnas y las une en una sola columna
+
+
+```{r, eval=FALSE}
+# Creamos data.frame 'paises' (ancho)
+paises <- data.frame(pais=c("A","A","B","B"),
+                     siglo=c('19','20','19','20'),
+                     anio=c('99','00','99','00'))
+#Juntamos
+paises2 <- paises %>% unite(siglo,anio,col="Anio",sep="")
+
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Creamos data.frame 'paises' (ancho)
+paises <- data.frame(pais=c("A","A","B","B"),
+                     siglo=c('19','20','19','20'),
+                     anio=c('99','00','99','00'))
+#Juntamos
+paises2 <- paises %>% unite(siglo,anio,col="Anio",sep="")
+paises2
+```
+
+---
+
+## Dividir celdas: **`separate()` /`extract()`**
+
+_Que hace_: separa celda con más de un dato en varias columnas
+
+```{r, eval=FALSE}
+# Agregamos en 'paises2' columna 'tasa'
+paises2$tasa <- c('0.5k/20M','5k/17M','30k/201M','57k/1456M')
+
+# Creamos nuevas columnas 'casos' y 'poblacion' en funcion
+# de los datos de numerador y denominador por separado
+paises2 %>% separate(tasa,sep="/",into=c("casos","poblacion"))
+
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Agregamos en 'paises2' columna 'tasa'
+paises2$tasa <- c('0.5k/20M','5k/17M','30k/201M','57k/1456M')
+
+# Creamos nuevas columnas 'casos' y 'poblacion' en funcion de los datos de numerador y denominador por separado
+paises2 %>% separate(tasa,sep="/",into=c("casos","poblacion"))
+```
+
+Función relacionada: `separate_rows()`
+
+```{r, eval=FALSE}
+# Separa datos pero en varias filas (1 sola columna)
+paises2 %>% separate_rows(tasa,sep="/") %>% head(4)
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Separa datos pero en varias filas (1 sola columna)
+paises2 %>% separate_rows(tasa,sep="/") %>% head(4)
+```
+
+---
+
+## Valores perdidos: **`fill()`** / **`complete()`**
+
+--
+
+_Qué hace_ `fill()`: llena columnas con `NA`s usando fila previa o posterior
+
+```{r, eval=FALSE}
+# Creamos data.frame
+df1 <- data.frame("x1"=c(LETTERS[1:5]),
+                  "x2"=c(1,NA,NA,3,NA))
+
+# Remplaza los NA de la columna 'x2' con valores previos:
+df1 %>% fill(x2)
+
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Creamos data.frame
+df1 <- data.frame("x1"=c(LETTERS[1:5]),
+                  "x2"=c(1,NA,NA,3,NA))
+
+# Llenamos columna 'x2' con valores correspondientes a x1:
+df1 %>% fill(x2) 
+
+```
+
+---
+
+## Valores perdidos: **`fill()`** / **`complete()`**
+
+
+_Qué hace_ `complete()`: agrega combinaciones de posibles valores perdidos de las columnas proporcionadas por usuario/a, llena valores restantes con `NA`
+
+```{r, eval=FALSE}
+# Creamos data.frame
+df2 <- data.frame("x1"=c(LETTERS[1:2],"B"),
+                  "x2"=c(1,1:2),
+                  "x3"=c(3,4,3))
+
+# Completamos df2: queda NA en combinacion faltante
+df2 %>% complete(x1,x2)
+
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Creamos data.frame
+df2 <- data.frame("x1"=c(LETTERS[1:2],"B"),
+                  "x2"=c(1,1:2),
+                  "x3"=c(3,4,3))
+
+# Completamos df2: queda NA en combinacion faltante
+df2 %>% complete(x1,x2)
+
+```
+
+---
+
+## Valores perdidos: **`fill()`** / **`complete()`**
+
+
+_Qué hace_ `drop_na()`: elimina filas con `NA`s
+
+```{r, eval=FALSE}
+# Eliminamos todas las filas con valores NA en columna x2:
+df1 %>% drop_na(x2)
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Eliminamos todas las filas con valores NA en columna x2:
+df1 %>% drop_na(x2)
+
+```
+
+--
+
+_Qué hace_ `replace_na()`: sustituye `NA`s con valores proporcionados por usuario/a
+
+```{r, eval=FALSE}
+# Cambiamos los NA en x2 por el valor 458:
+df1 %>% replace_na(list(x2=458))
+```
+
+```{r, eval=TRUE,warning=FALSE,message=FALSE,echo=FALSE,results='markup'}
+# Cambiamos los NA en x2 por el valor 458:
+df1 %>% replace_na(list(x2=458))
+```
+
