@@ -8,7 +8,7 @@ title: |
 # subtitle: "Inportar y exportar datos"
 author: "Leticia Debera, Darío Padula y Daniel Alessandrini"
 institute: "Intendencia de Montevideo"
-date: "2023/11/21" 
+date: "2023/11/23" 
 #(updated: `r Sys.Date()`)"
 output:
   # revealjs::revealjs_presentation:
@@ -28,23 +28,22 @@ options(htmltools.dir.version = FALSE)
 ```
 
 
----
 # Repaso: `dplyr`
 
-- ### Decribimos algunas librerías dentro del ecosistema `tidyverse`.
+- ### Describimos algunas librerías dentro del ecosistema `tidyverse`.
 - ### Presentamos distintas funciones de la librería `dplyr`, como: `mutate()`, `filter()`, `arrange()`, `summarise()` y `group_by()`
-- ### Definimos la forma de generar secuencias de acciones aplicando funciones encadenadas utilizando los pipes o tuberías (`%>%`)
-- ### Mostramos un ejemplo usando datos de la ECH donde se muestran muchas de estas funciones como un flujo de acciones.
+- ### Definimos la forma de generar secuencias de acciones aplicando funciones encadenadas utilizando los _pipes_ o tuberías (`%>%`)
+- ### Mostramos un ejemplo usando datos de la ECH donde se muestran muchas de estas funciones como un flujo de acciones
 
 ---
 
 # Hoy veremos
 
-- ## Combinar datos de **distintos set de datos**:
+- ## Combinar m **distintos set de datos**:
   + `inner_join()`: junta tablas por una o más variables comunes y se queda con las filas que coinciden. 
   + `left_join()`: junta tablas por una o más variables comunes y mantiene siempre las filas de la izquierda.
   + `right_join()`:  junta tablas por una o más variables comunes y mantiene siempre las filas de la derecha.
-  + `full_join()`:  junta tablas por una o más variables comunes y mantiene las filas de ambos set de datos.
+  + `full_join()`:  junta tablas por una o más variables comunes y mantiene las filas de ambos set de datos
 - ##  Funciones para **aplicar una o más funciones a un conjunto de variables**:
   + `mutate_at()`, `mutate_if()`: transforma variables para un conjunto de columnas dadas (_at) o que ecumplen alguna condición (_if) 
   + `summarise_at()`, `summarise_if()`: resume un conjunto de columnas dadas (_at) o que ecumplen alguna condición (_if) 
@@ -62,7 +61,7 @@ Las funciones de `join` sirven para combinar datos de dos tablas diferentes, por
 - **Set de datos 1**: En un una tabla o set de datos tenemos las compras que realizan clientes en internet (filas), cada cliente aparece en la tabla tantas veces como compras haya realizado, cada cliente tiene un ID único que permite saber qué cliente es. 
 - **Set de datos 2**: tenemos información estática de los clientes: **fecha de nacimiento**, *barrio donde vive*, *sexo al nacer*, etc.  También tiene la variable **ID** que identifica a cada cliente.
 
-Las funciones de `xxx_join()` sirven para para anexar información de una tabla a otra, ya sea creando una nueva tabla o modificando una tabla existente.
+Las funciones de `xxx_join()` sirven para anexar información de una tabla a otra, ya sea creando una nueva tabla o modificando una tabla existente.
 
 ### ¿Qué tipos de `join` existen?
 
@@ -86,9 +85,18 @@ Las funciones de `xxx_join()` sirven para para anexar información de una tabla 
 
 ## Ejemplo visual de los distintos `join` 
 
+<img src="Joins_SQL.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 30px;">
+
+Fuente: <https://learnsql.com/blog/learn-and-practice-sql-joins/>
+
+<!--
+ORIGINAL:
+
 <img src="Imagenes/ejemploJoins.png" alt="Descripción de la imagen" style="width:100%; margin-left: 0px; margin-top: 30px;">
 
 La imagen fue sacada de aquí <https://rpubs.com/williamsurles/293454>
+
+-->
 
 ---
 # Ejercicio con tablas de juguete
@@ -115,11 +123,13 @@ conflict_prefer(name = 'select',winner = 'dplyr')
 #### Importaremos las siguientes tablas para hacer distintos `join`
 
 ```{r}
-datID1 = read.table('Bases/joinID1.csv',sep = ',',header = T)
-dat02 = read.table('Bases/joinTabla2.csv',sep = ',',
+datID1 = read.table('../../Bases/joinID1.csv',sep = ',',header = T)
+dat02 = read.table('../../Bases/joinTabla2.csv',sep = ',',
                    header = T, dec = ',')
-datLarga = read.table('Bases/joinTablaLarga.csv',sep = ',',
+datLarga = read.table('../../Bases/joinTablaLarga.csv',sep = ',',
                       header = T,dec = ',')
+#Ruta Original: Bases/...
+
 ```
 
 --
@@ -302,7 +312,7 @@ Estas funciones son útiles si necesitamos hacer **una o más transformación a 
 
 --
 
-- Vamos a presentar ejemplos utilizando una tabla de juguete llamada `datosMutSum.csv`
+- Vamos a presentar ejemplos utilizando una tabla de juguete llamada `datMutateSumm.csv`
 
 
 ```{r, eval = F,echo = F}
@@ -314,12 +324,12 @@ datms = data.frame(Text1 = rep(LETTERS[1:5],each = 3),
                    Col4 = sample(100,nfilas),
                    Text5 = sample(LETTERS,15))
                    
-write.table(datms,'Bases/datMutateSumm.csv',sep = ';',row.names = F)
+write.table(datms,'../../Bases/datMutateSumm.csv',sep = ';',row.names = F)
 ```
 
 
 ```{r}
-datToy = read.table('Bases/datMutateSumm.csv',sep = ';',header = T)
+datToy = read.table('../../Bases/datMutateSumm.csv',sep = ';',header = T)
 ```
 
 
@@ -557,7 +567,7 @@ class: inverse, center, middle
  + Cada observación/individuo está en una y solo una fila
  + Cada valor tiene su propia celda
 
-<img src="Imagenes/tidy-data-wickham.png" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html"  style="width:100%; margin-left: 0px; margin-top: 20px;">
+<img src="tidy-data-wickham.png" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html"  style="width:100%; margin-left: 0px; margin-top: 20px;">
 
 ---
 
@@ -565,7 +575,7 @@ class: inverse, center, middle
 
 Muchas veces es necesario cambiar el formato de los datos para trabajarlos mejor
 
-<img src="Imagenes/tidyr-pivot_wider_longer.gif" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html" style="width: 65%; text-align: center;">
+<img src="tidyr-pivot_wider_longer.gif" alt="Fuente: https://datacarpentry.org/r-socialsci/04-tidyr.html" style="width: 65%; text-align: center;">
 
 ---
 
@@ -699,7 +709,6 @@ paises2 %>% separate_rows(tasa,sep="/") %>% head(4)
 
 ## Valores perdidos: **`fill()`** / **`complete()`**
 
---
 
 _Qué hace_ `fill()`: llena columnas con `NA`s usando fila previa o posterior
 
